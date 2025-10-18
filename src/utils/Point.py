@@ -107,17 +107,22 @@ class Point:
     def __str__(self):
         classname = type(self).__name__ 
         return f'{classname}{self.coords}'
+    
+    def setx(self, val):
+        self.x = val 
+        
+        coords = list(self.coords)
+        coords[0] = val 
 
-class Point3D(Point):
-    def __init__(self, x: float, y: float, z: float):
-        self.x = x
-        self.y = y
-        self.z = z
+        self.coords = tuple(coords)
+    
+    def sety(self, val):
+        self.y = val 
+        
+        coords = list(self.coords)
+        coords[1] = val 
 
-        self.coords = (x, y, z)
-
-    def to_2D(self):
-        return Point2D.from_3D(self)
+        self.coords = tuple(coords)
 
 class Point2D(Point):
     def __init__(self, x: float, y: float) -> 'Point2D':
@@ -133,20 +138,45 @@ class Point2D(Point):
         if not isinstance(other, Point2D): raise NotImplemented
 
         dy = other.y - self.y 
-        dx = other.x - self.x 
+        dx = other.x - self.x
 
+        if dx == 0:
+            dx += 1e-7
+        
         angle = math.atan(dy/dx)
 
         return Point2D(math.cos(angle), math.sin(angle))
+    
+class Point3D(Point):
+    def __init__(self, x: float, y: float, z: float):
+        self.x = x
+        self.y = y
+        self.z = z
 
-    @staticmethod
-    def from_3D(point: Point3D) -> 'Point2D':
-        flattened = Point2D(point.x, point.y)
+        self.coords = (x, y, z)
+
+    def setz(self, val):
+        self.z = val 
+        
+        coords = list(self.coords)
+        coords[2] = val 
+
+        self.coords = tuple(coords)
+
+    def to_2D(self: 'Point3D') -> Point2D:
+        flattened = Point2D(self.x, self.y)
 
         viewport_width, viewport_height = VIEWPORT_RESOLUTION
         center_x, center_y = viewport_width/2, viewport_height/2
         vanishing_point = Point2D(center_x, center_y)
 
-        sign = (vanishing_point.x - point.x) / (abs(vanishing_point.x - flattened.x))
+        dx = vanishing_point.x - flattened.x
+        dy = vanishing_point.y - flattened.y 
 
-        return flattened + depth_attenuation(point.z) * flattened.dist(vanishing_point) * (flattened.direction(vanishing_point) * sign)
+        if dx != 0:
+            sign = dx / abs(dx)
+        else:
+            sign = -(dy / abs(dy))
+
+        return flattened + depth_attenuation(self.z) * flattened.dist(vanishing_point) * (flattened.direction(vanishing_point) * sign)
+        
