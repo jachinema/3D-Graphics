@@ -1,7 +1,7 @@
 import math
 
 def exp_complement_curve(z: float): 
-    exponential_constant = 0.005
+    exponential_constant = 0.0015
     return 1 - math.exp(-exponential_constant * z)
 
 depth_attenuation = exp_complement_curve

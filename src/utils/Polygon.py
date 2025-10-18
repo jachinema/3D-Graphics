@@ -63,7 +63,7 @@ class Polygon3D:
             raise PolygonFaceError("Polygon3D with fewer than 4 faces cannot be constructed.")
 
         for face in faces:
-            if type(face) is not Polygon2D:
+            if type(face) is not Face:
                 raise PolygonFaceError
 
         self.faces = faces 
@@ -71,9 +71,59 @@ class Polygon3D:
         histogram = dict()
         for face in faces:
             for point in face.vertices:
-                histogram[point] = histogram.setdefault(point, 0) + 1
+                histogram[str(point)] = histogram.setdefault(str(point), 0) + 1
         
         for key in histogram:
             if histogram[key] < 2:
                 raise PolygonFaceError("Unclosed Polygon3D, one or more faces has at least one free-hanging vertex.")
-            
+
+class Cube(Polygon3D):
+    def __init__(self, origin: Point3D, edge: float):
+        left, top, front = origin.coords
+
+        front_face = Face([
+            Point3D(left, top, front),
+            Point3D(left, top+edge, front),
+            Point3D(left+edge, top+edge, front),
+            Point3D(left+edge, top, front)
+        ])
+
+        back_face = Face([
+            Point3D(left, top, front+edge),
+            Point3D(left, top+edge, front+edge),
+            Point3D(left+edge, top+edge, front+edge),
+            Point3D(left+edge, top, front+edge)
+        ])
+
+        left_face = Face([
+            Point3D(left, top, front+edge),
+            Point3D(left, top+edge, front+edge),
+            Point3D(left, top+edge, front),
+            Point3D(left, top, front)
+        ])
+
+        right_face = Face([
+            Point3D(left+edge, top, front+edge),
+            Point3D(left+edge, top+edge, front+edge),
+            Point3D(left+edge, top+edge, front),
+            Point3D(left+edge, top, front)
+        ])
+
+        top_face = Face([
+            Point3D(left, top, front+edge),
+            Point3D(left, top, front),
+            Point3D(left+edge, top, front),
+            Point3D(left+edge, top, front+edge)
+        ])
+
+        bottom_face = Face([
+            Point3D(left, top+edge, front+edge),
+            Point3D(left, top+edge, front),
+            Point3D(left+edge, top+edge, front),
+            Point3D(left+edge, top+edge, front+edge)
+        ])
+
+        faces = [front_face, left_face, back_face, right_face, top_face, bottom_face]
+        super().__init__(faces)
+
+
