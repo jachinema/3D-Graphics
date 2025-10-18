@@ -49,6 +49,22 @@ class Face(Polygon):
         
         self.vertices = vertices
         self.color = color
+    
+    def center(self):
+        tx = 0
+        ty = 0
+        tz = 0
+
+        for point in self.vertices:
+            tx += point.x
+            ty += point.y 
+            tz += point.z 
+
+        tx /= len(self.vertices)
+        ty /= len(self.vertices)
+        tz /= len(self.vertices)
+
+        return Point3D(tx, ty, tz)
 
 class Polygon3D:
     """
@@ -100,30 +116,30 @@ class Cube(Polygon3D):
             Point3D(left, top+edge, front+edge),
             Point3D(left, top+edge, front),
             Point3D(left, top, front)
-        ])
+        ], (255, 255, 0))
 
         right_face = Face([
             Point3D(left+edge, top, front+edge),
             Point3D(left+edge, top+edge, front+edge),
             Point3D(left+edge, top+edge, front),
             Point3D(left+edge, top, front)
-        ])
+        ], (255, 255, 0))
 
         top_face = Face([
             Point3D(left, top, front+edge),
             Point3D(left, top, front),
             Point3D(left+edge, top, front),
             Point3D(left+edge, top, front+edge)
-        ])
+        ], (255, 0, 0))
 
         bottom_face = Face([
             Point3D(left, top+edge, front+edge),
             Point3D(left, top+edge, front),
             Point3D(left+edge, top+edge, front),
             Point3D(left+edge, top+edge, front+edge)
-        ])
+        ], (255, 0, 0))
 
-        faces = [front_face, left_face, back_face, right_face, top_face, bottom_face]
+        faces = [back_face, left_face, front_face, right_face, top_face, bottom_face]
         super().__init__(faces)
 
 

@@ -3,6 +3,7 @@ from utils.Polygon import Polygon, Polygon2D, Polygon3D, Face
 from utils.Point import Point3D
 import pygame as pg 
 from pygame import gfxdraw
+import math
 
 class Render:
     def __init__(self, camera: Camera, surface: pg.Surface):
@@ -16,7 +17,7 @@ class Render:
         elif isinstance(poly, Face):
             vertices_tuple = tuple(map(lambda p: p.to_2D().coords, poly.vertices))
         elif isinstance(poly, Polygon3D):
-            for face in poly.faces:
+            for face in sorted(poly.faces, key=lambda f: f.center().dist(Point3D(960, 540, 0)), reverse=True):
                 self.draw_polygon(face)
             return
         
