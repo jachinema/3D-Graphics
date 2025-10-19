@@ -283,7 +283,7 @@ class Point3D(Point):
 
         self.coords = coords
         self.__update_coords()
-        
+
     def setz(self, val):
         self.z = val 
         
@@ -310,4 +310,9 @@ class Point3D(Point):
             sign = 0
 
         return flattened + depth_attenuation(self.z) * flattened.dist(vanishing_point) * (flattened.direction(vanishing_point) * sign)
-        
+    
+    def __str__(self) -> str: 
+        return f'Point3D{self.coords}'
+
+    def __repr__(self) -> str:
+        return str(self)

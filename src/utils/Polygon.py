@@ -129,7 +129,7 @@ class Prism(Polygon3D):
             Point3D(left, top+yedge, front+zedge),
             Point3D(left+xedge, top+yedge, front+zedge),
             Point3D(left+xedge, top, front+zedge)
-        ])
+        ], (192, 18, 255))
 
         left_face = Face([
             Point3D(left, top, front+zedge),
@@ -143,14 +143,14 @@ class Prism(Polygon3D):
             Point3D(left+xedge, top+yedge, front+zedge),
             Point3D(left+xedge, top+yedge, front),
             Point3D(left+xedge, top, front)
-        ], (255, 255, 0))
+        ], (0, 255, 80))
 
         top_face = Face([
             Point3D(left, top, front+zedge),
             Point3D(left, top, front),
             Point3D(left+xedge, top, front),
             Point3D(left+xedge, top, front+zedge)
-        ], (255, 0, 0))
+        ], (255, 180, 12))
 
         bottom_face = Face([
             Point3D(left, top+yedge, front+yedge),

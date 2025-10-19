@@ -22,7 +22,7 @@ if __name__ == "__main__":
     poly = Cube(Point3D(300, 300, 0), 100)
     poly2 = Cube(Point3D(450, 300, 0), 100)
 
-    # construct = CompositeShape([poly, poly2])
+    construct = CompositeShape([poly, poly2])
 
     angle = 0
 
@@ -38,12 +38,7 @@ if __name__ == "__main__":
         x, y = pg.mouse.get_pos()
 
         poly = Cube(Point3D(x, y, 0), 100)
-        # poly2 = Cube(Point3D(x+150, y, 0), 100)
-        # construct = CompositeShape([poly, poly2])
-        # construct.rotate(construct.center(), math.radians(angle), XY)
-        # construct.rotate(construct.center(), math.radians(angle), YZ)
         poly.rotate(poly.center(), math.radians(angle), XY)
-        poly.rotate(poly.center(), math.radians(angle), YZ)
 
         angle = angle % 360
         pg.display.update()

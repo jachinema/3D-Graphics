@@ -7,15 +7,15 @@ from pygame import gfxdraw
 import math
 
 class Render:
-    vanishing_point = Point3D(VIEWPORT_RESOLUTION[0]/2, VIEWPORT_RESOLUTION[1]/2, 0)
+    vanishing_point = Point3D(VIEWPORT_RESOLUTION[0]/2, VIEWPORT_RESOLUTION[1]/2, -5000)
 
     def __init__(self, camera: Camera, surface: pg.Surface):
         self.camera = camera
         self.surface = surface 
 
-    def dist_from_vp(self, polys: list[Polygon | Polygon3D | CompositeShape]) -> list[Polygon | Polygon3D | CompositeShape]:
+    def dist_from_vp(self, polys: list[Face]) -> list[Face]:
         """
-        Sorts a list of Polygon-likes by their distance from the vanishing point (highest to lowest)
+        Sorts a list of Faces by their distance from the vanishing point (highest to lowest)
         Used to determine rendering order
         """
 
