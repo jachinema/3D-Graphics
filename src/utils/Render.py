@@ -13,18 +13,26 @@ class Render:
         self.camera = camera
         self.surface = surface 
 
+    def dist_from_vp(self, polys: list[Polygon | Polygon3D | CompositeShape]) -> list[Polygon | Polygon3D | CompositeShape]:
+        """
+        Sorts a list of Polygon-likes by their distance from the vanishing point (highest to lowest)
+        Used to determine rendering order
+        """
 
-    def draw_polygon(self, poly: Polygon):
+        return sorted(polys, key = lambda poly: poly.center().dist(Render.vanishing_point), reverse=True)
+
+
+    def draw_polygon(self, poly: Polygon | Polygon3D | CompositeShape):
         if isinstance(poly, Polygon2D):
             vertices_tuple = poly.vertices_to_tuple()
         elif isinstance(poly, Face):
             vertices_tuple = tuple(map(lambda p: p.to_2D().coords, poly.vertices))
         elif isinstance(poly, Polygon3D):
-            for face in sorted(poly.faces, key=lambda f: f.center().dist(Render.vanishing_point), reverse=True):
+            for face in self.dist_from_vp(poly.faces):
                 self.draw_polygon(face)
             return
         elif isinstance(poly, CompositeShape):
-            for face in sorted(poly.all_faces, key=lambda f: f.center().dist(Render.vanishing_point), reverse=True):
+            for face in self.dist_from_vp(poly.all_faces):
                 self.draw_polygon(face)
             return
         
