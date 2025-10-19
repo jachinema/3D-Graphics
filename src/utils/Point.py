@@ -175,8 +175,10 @@ class Point3D(Point):
 
         if dx != 0:
             sign = dx / abs(dx)
-        else:
+        elif dy != 0:
             sign = -(dy / abs(dy))
+        else:
+            sign = 0
 
         return flattened + depth_attenuation(self.z) * flattened.dist(vanishing_point) * (flattened.direction(vanishing_point) * sign)
         
