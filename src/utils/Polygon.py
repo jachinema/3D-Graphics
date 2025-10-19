@@ -93,53 +93,80 @@ class Polygon3D:
             if histogram[key] < 2:
                 raise PolygonFaceError("Unclosed Polygon3D, one or more faces has at least one free-hanging vertex.")
 
-class Cube(Polygon3D):
-    def __init__(self, origin: Point3D, edge: float):
+class Prism(Polygon3D):
+    def __init__(self, origin: Point3D, xedge: float, yedge: float, zedge: float):
         left, top, front = origin.coords
 
         front_face = Face([
             Point3D(left, top, front),
-            Point3D(left, top+edge, front),
-            Point3D(left+edge, top+edge, front),
-            Point3D(left+edge, top, front)
+            Point3D(left, top+yedge, front),
+            Point3D(left+xedge, top+yedge, front),
+            Point3D(left+xedge, top, front)
         ])
 
         back_face = Face([
-            Point3D(left, top, front+edge),
-            Point3D(left, top+edge, front+edge),
-            Point3D(left+edge, top+edge, front+edge),
-            Point3D(left+edge, top, front+edge)
+            Point3D(left, top, front+zedge),
+            Point3D(left, top+yedge, front+zedge),
+            Point3D(left+xedge, top+yedge, front+zedge),
+            Point3D(left+xedge, top, front+zedge)
         ])
 
         left_face = Face([
-            Point3D(left, top, front+edge),
-            Point3D(left, top+edge, front+edge),
-            Point3D(left, top+edge, front),
+            Point3D(left, top, front+zedge),
+            Point3D(left, top+yedge, front+zedge),
+            Point3D(left, top+yedge, front),
             Point3D(left, top, front)
         ], (255, 255, 0))
 
         right_face = Face([
-            Point3D(left+edge, top, front+edge),
-            Point3D(left+edge, top+edge, front+edge),
-            Point3D(left+edge, top+edge, front),
-            Point3D(left+edge, top, front)
+            Point3D(left+xedge, top, front+zedge),
+            Point3D(left+xedge, top+yedge, front+zedge),
+            Point3D(left+xedge, top+yedge, front),
+            Point3D(left+xedge, top, front)
         ], (255, 255, 0))
 
         top_face = Face([
-            Point3D(left, top, front+edge),
+            Point3D(left, top, front+zedge),
             Point3D(left, top, front),
-            Point3D(left+edge, top, front),
-            Point3D(left+edge, top, front+edge)
+            Point3D(left+xedge, top, front),
+            Point3D(left+xedge, top, front+zedge)
         ], (255, 0, 0))
 
         bottom_face = Face([
-            Point3D(left, top+edge, front+edge),
-            Point3D(left, top+edge, front),
-            Point3D(left+edge, top+edge, front),
-            Point3D(left+edge, top+edge, front+edge)
+            Point3D(left, top+yedge, front+yedge),
+            Point3D(left, top+yedge, front),
+            Point3D(left+yedge, top+yedge, front),
+            Point3D(left+yedge, top+yedge, front+yedge)
         ], (255, 0, 0))
 
         faces = [back_face, left_face, front_face, right_face, top_face, bottom_face]
         super().__init__(faces)
+    
+    def center(self) -> tuple[int]:
+        centers = []
+        for face in self.faces:
+            centers.append(face.center())
 
+        # This is not a "real" Face, but it is quite convenient to consider
+        # the list of center-points for each Face, as a Face itself, 
+        # because we can use this temporary Face to calculate the center of the centers easily.
+        abstract = Face(centers) 
 
+        return abstract.center()
+
+class Cube(Prism):
+    def __init__(self, origin: Point3D, edge: float):
+        super().__init__(origin, edge, edge, edge)
+
+class CompositeShape:
+    """
+    This class acts in a similar way to Polygon3D. 
+    Instead of stitching Faces to create simple objects, this stiches objects to create more interesting ones. 
+    """
+    def __init__(self, components: list[Polygon3D]):
+        self.components = components
+        self.all_faces = []
+
+        for component in components:
+            self.all_faces.extend(component.faces)
+            
