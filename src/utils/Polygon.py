@@ -1,4 +1,4 @@
-from utils.Point import Point, Point2D, Point3D
+from utils.Point import Point, Point2D, Point3D, Plane
 from exceptions.GraphicsExceptions import PolygonVertexError, PolygonFaceError
 
 class Polygon:
@@ -21,6 +21,10 @@ class Polygon:
     
     def vertices_to_tuple(self) -> tuple[tuple[float]]:
         return tuple(p.coords for p in self.vertices)
+    
+    def rotate(self, about: Point, angle: int | float, plane: Plane):
+        for vertex in self.vertices:
+            vertex.rotate(about, angle, plane)
 
 class Polygon2D(Polygon):
     def __init__(self, vertices: list[Point2D], color: tuple[int] = (0, 0, 255)):
@@ -92,6 +96,22 @@ class Polygon3D:
         for key in histogram:
             if histogram[key] < 2:
                 raise PolygonFaceError("Unclosed Polygon3D, one or more faces has at least one free-hanging vertex.")
+    
+    def rotate(self, about: Point, angle: int | float, plane: Plane):
+        for face in self.faces:
+            face.rotate(about, angle, plane)
+
+    def center(self) -> Point3D:
+        centers = []
+        for face in self.faces:
+            centers.append(face.center())
+
+        # This is not a "real" Face, but it is quite convenient to consider
+        # the list of center-points for each Face, as a Face itself, 
+        # because we can use this temporary Face to calculate the center of the centers easily.
+        abstract = Face(centers) 
+
+        return abstract.center()
 
 class Prism(Polygon3D):
     def __init__(self, origin: Point3D, xedge: float, yedge: float, zedge: float):
@@ -109,7 +129,7 @@ class Prism(Polygon3D):
             Point3D(left, top+yedge, front+zedge),
             Point3D(left+xedge, top+yedge, front+zedge),
             Point3D(left+xedge, top, front+zedge)
-        ])
+        ], (192, 18, 255))
 
         left_face = Face([
             Point3D(left, top, front+zedge),
@@ -123,14 +143,14 @@ class Prism(Polygon3D):
             Point3D(left+xedge, top+yedge, front+zedge),
             Point3D(left+xedge, top+yedge, front),
             Point3D(left+xedge, top, front)
-        ], (255, 255, 0))
+        ], (0, 255, 80))
 
         top_face = Face([
             Point3D(left, top, front+zedge),
             Point3D(left, top, front),
             Point3D(left+xedge, top, front),
             Point3D(left+xedge, top, front+zedge)
-        ], (255, 0, 0))
+        ], (255, 180, 12))
 
         bottom_face = Face([
             Point3D(left, top+yedge, front+yedge),
@@ -141,18 +161,6 @@ class Prism(Polygon3D):
 
         faces = [back_face, left_face, front_face, right_face, top_face, bottom_face]
         super().__init__(faces)
-    
-    def center(self) -> tuple[int]:
-        centers = []
-        for face in self.faces:
-            centers.append(face.center())
-
-        # This is not a "real" Face, but it is quite convenient to consider
-        # the list of center-points for each Face, as a Face itself, 
-        # because we can use this temporary Face to calculate the center of the centers easily.
-        abstract = Face(centers) 
-
-        return abstract.center()
 
 class Cube(Prism):
     def __init__(self, origin: Point3D, edge: float):
@@ -165,8 +173,21 @@ class CompositeShape:
     """
     def __init__(self, components: list[Polygon3D]):
         self.components = components
-        self.all_faces = []
+        self.all_faces: list[Face] = []
 
         for component in components:
             self.all_faces.extend(component.faces)
-            
+    
+    def rotate(self, about: Point, angle: int | float, plane: Plane):
+        for poly in self.components:
+            poly.rotate(about, angle, plane)
+    
+    def center(self) -> Point3D:
+        centers = []
+        for poly in self.components:
+            centers.append(poly.center())
+        
+        abstract = Face(centers)
+
+        return abstract.center()
+
